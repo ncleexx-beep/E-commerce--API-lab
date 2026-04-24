@@ -1,0 +1,95 @@
+package com.ws101.Villanueva&Omela.ecommerceapi.service;
+
+import com.ws101.Villanueva&Omelaecommerceapi.model.Product;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+@Service
+public class ProductService {
+
+    private List<Product> products = new ArrayList<>();
+    private Long counter = 1L;
+
+    public ProductService() {
+        products.add(new Product(counter++, "Laptop", "Gaming laptop", 50000, "Electronics", 5, ""));
+        products.add(new Product(counter++, "Phone", "Android phone", 15000, "Electronics", 10, ""));
+        products.add(new Product(counter++, "Headphones", "Noise cancelling", 3000, "Electronics", 15, ""));
+        products.add(new Product(counter++, "Shoes", "Running shoes", 2500, "Sports", 20, ""));
+        products.add(new Product(counter++, "Backpack", "Travel bag", 1200, "Accessories", 8, ""));
+        products.add(new Product(counter++, "Watch", "Smart watch", 7000, "Electronics", 12, ""));
+        products.add(new Product(counter++, "Keyboard", "Mechanical keyboard", 3500, "Electronics", 6, ""));
+        products.add(new Product(counter++, "Mouse", "Wireless mouse", 800, "Electronics", 25, ""));
+        products.add(new Product(counter++, "T-shirt", "Cotton shirt", 500, "Clothing", 30, ""));
+        products.add(new Product(counter++, "Water Bottle", "Insulated bottle", 600, "Accessories", 18, ""));
+    }
+
+    // ✅ VALIDATION METHOD
+    private void validateProduct(Product product) {
+        if (product.getName() == null || product.getName().length() < 2) {
+            throw new IllegalArgumentException("Product name must be at least 2 characters");
+        }
+        if (product.getPrice() <= 0) {
+            throw new IllegalArgumentException("Price must be greater than 0");
+        }
+        if (product.getCategory() == null || product.getCategory().isEmpty()) {
+            throw new IllegalArgumentException("Category is required");
+        }
+        if (product.getStockQuantity() < 0) {
+            throw new IllegalArgumentException("Stock must not be negative");
+        }
+    }
+
+    public List<Product> getAllProducts() {
+        return products;
+    }
+
+    public Product getProductById(Long id) {
+        return products.stream()
+                .filter(p -> p.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Product addProduct(Product product) {
+        validateProduct(product);
+        product.setId(counter++);
+        products.add(product);
+        return product;
+    }
+
+    public Product updateProduct(Long id, Product updated) {
+        Product existing = getProductById(id);
+        if (existing == null) return null;
+
+        validateProduct(updated);
+
+        existing.setName(updated.getName());
+        existing.setDescription(updated.getDescription());
+        existing.setPrice(updated.getPrice());
+        existing.setCategory(updated.getCategory());
+        existing.setStockQuantity(updated.getStockQuantity());
+        existing.setImageUrl(updated.getImageUrl());
+
+        return existing;
+    }
+
+    public void deleteProduct(Long id) {
+        products.removeIf(p -> p.getId().equals(id));
+    }
+
+    public List<Product> filterProducts(String type, String value) {
+        return products.stream().filter(p -> {
+            switch (type.toLowerCase()) {
+                case "category":
+                    return p.getCategory().equalsIgnoreCase(value);
+                case "name":
+                    return p.getName().toLowerCase().contains(value.toLowerCase());
+                case "price":
+                    return p.getPrice() <= Double.parseDouble(value);
+                default:
+                    return true;
+            }
+        }).toList();
+    }
+}
