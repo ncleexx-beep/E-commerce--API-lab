@@ -1,0 +1,20 @@
+package com.ws101.Villanueva&Omela.ecommerceapi.config;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleValidation(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(Map.of(
+                "timestamp", LocalDateTime.now(),
+                "error", "Bad Request",
+                "message", ex.getMessage()
+        ));
+    }
+}
